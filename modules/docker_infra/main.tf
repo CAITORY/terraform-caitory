@@ -127,16 +127,20 @@ resource "null_resource" "caitory_php" {
     user        = "ubuntu"
     private_key = file(self.triggers.server_pem_path)
     host        = self.triggers.server_public_ip
-    timeout = "10m"
+    timeout     = "10m"
   }
 
   provisioner "remote-exec" {
-    command = "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml up -d"
+    inline = [
+      "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml up -d",
+    ]
   }
 
   provisioner "remote-exec" {
     when    = destroy
-    command = "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml down"
+    inline = [
+      "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml down",
+    ]
   }
 
   triggers = {
