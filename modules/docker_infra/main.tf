@@ -126,7 +126,7 @@ resource "null_resource" "caitory_php" {
     type        = "ssh"
     user        = "ubuntu"
     private_key = file(self.triggers.server_pem_path)
-    host        = var.server_public_ip
+    host        = self.triggers.server_public_ip
     timeout = "10m"
   }
 
@@ -142,5 +142,6 @@ resource "null_resource" "caitory_php" {
   triggers = {
     server_pem_path = var.server_pem_path
     server_instance_id = var.server_id
+    server_public_ip = var.server_public_ip
   }
 }
