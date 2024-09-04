@@ -120,3 +120,18 @@ resource "docker_container" "mysql" {
     "SERVER_INSTANCE_ID=${var.server_id}" // 서버가 종료되고 새로운 서버가 생성될 때 server_id가 변경되어 다시 작동하기 위함
   ]
 }
+
+resource "null_resource" "caitory_php" {
+  provisioner "local-exec" {
+    command = "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml up -d"
+  }
+
+  provisioner "local-exec" {
+    when    = destroy
+    command = "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml down"
+  }
+
+  triggers = {
+    server_instance_id = var.server_id
+  }
+}
