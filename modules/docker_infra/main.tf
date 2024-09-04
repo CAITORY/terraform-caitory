@@ -132,14 +132,14 @@ resource "null_resource" "caitory_php" {
 
   provisioner "remote-exec" {
     inline = [
-      "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml up -d",
+      "docker compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml up -d",
     ]
   }
 
   provisioner "remote-exec" {
     when    = destroy
     inline = [
-      "docker-compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml down",
+      "docker compose -f /mnt/docker_data/workspace/caitory_php/docker-compose.yml down",
     ]
   }
 
