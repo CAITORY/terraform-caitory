@@ -235,6 +235,8 @@ resource "aws_instance" "server" {
   subnet_id     = aws_subnet.public_subnet_1.id
   key_name      = aws_key_pair.key_pair_public_key.key_name
 
+  iam_instance_profile = aws_iam_instance_profile.ssm_instance_profile.name
+
   // user_data 작성시 서버가 다시 죽었다가 띄워지므로 사용자가 사용하지 않는 시간대에 수정이 이루어져야 합니다.
   user_data = <<-EOF
 #!/bin/bash
@@ -297,6 +299,35 @@ resource "aws_volume_attachment" "docker_data_volume_attach" {
   device_name = var.server_docker_volume_path
   volume_id   = var.server_docker_volume_id
   instance_id = aws_instance.server.id
+}
+
+################################################################################
+# SSM
+################################################################################
+
+resource "aws_iam_role" "ssm_role" {
+  name = "${var.terraform_env}_${var.prefix}_ssm_role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Action    = "sts:AssumeRole",
+      Effect    = "Allow",
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  role       = aws_iam_role.ssm_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "ssm_instance_profile" {
+  name = "${var.terraform_env}_${var.prefix}_ssm_instance_profile"
+  role = aws_iam_role.ssm_role.name
 }
 
 ################################################################################
