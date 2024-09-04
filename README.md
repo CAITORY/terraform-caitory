@@ -13,3 +13,7 @@
 - mysql의 계정 정보는 secret manager에 있습니다.
 - 보안 암호 이름 `caitory_mysql_account`
 - s3 `caitory-mysql-backup`에 2024-09-05 백업 데이터가 담겨있습니다.
+
+# caitory_php
+- caitory_php 백업본은 s3 `caitory-php-backup`에 담겨있습니다.
+- 직접 서버에 접속하여 구축한 후에 terraform으로 구동만 합니다.
