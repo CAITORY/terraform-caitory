@@ -75,7 +75,7 @@ resource "docker_image" "mysql" {
 ################################################################################
 
 resource "docker_container" "nginx_proxy_manager" {
-  image = docker_image.nginx_proxy_manager.name
+  image = docker_image.nginx_proxy_manager.image_id
   name  = "nginx_proxy_manager"
 
   ports {
@@ -111,7 +111,7 @@ resource "docker_container" "nginx_proxy_manager" {
 }
 
 resource "docker_container" "mysql" {
-  image = docker_image.mysql.name
+  image = docker_image.mysql.image_id
   name  = "mysql"
 
   ports {
