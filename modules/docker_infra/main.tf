@@ -59,11 +59,23 @@ provider "docker" {
 }
 
 ################################################################################
+# Docker Image
+################################################################################
+
+resource "docker_image" "nginx_proxy_manager" {
+  name = "jc21/nginx-proxy-manager:latest"
+}
+
+resource "docker_image" "mysql" {
+  name = "mysql:5"
+}
+
+################################################################################
 # Docker Container
 ################################################################################
 
 resource "docker_container" "nginx_proxy_manager" {
-  image = "jc21/nginx-proxy-manager:latest"
+  image = docker_image.nginx_proxy_manager.name
   name  = "nginx_proxy_manager"
 
   ports {
@@ -93,13 +105,13 @@ resource "docker_container" "nginx_proxy_manager" {
 
   restart = "unless-stopped"
 
-#   env = [
-#     "SERVER_INSTANCE_ID=${var.server_id}" // 서버가 종료되고 새로운 서버가 생성될 때 server_id가 변경되어 다시 작동하기 위함
-#   ]
+  env = [
+    "SERVER_INSTANCE_ID=${var.server_id}" // 서버가 종료되고 새로운 서버가 생성될 때 server_id가 변경되어 다시 작동하기 위함
+  ]
 }
 
 resource "docker_container" "mysql" {
-  image = "mysql:5"
+  image = docker_image.mysql.name
   name  = "mysql"
 
   ports {
