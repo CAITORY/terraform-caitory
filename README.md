@@ -8,3 +8,8 @@
 
 # Server Pem Key
 - server pem key의 경우에는 Secrets Manager에 생성되어 있습니다.
+
+# Mysql
+- mysql의 계정 정보는 secret manager에 있습니다.
+- 보안 암호 이름 `caitory_mysql_account`
+- s3 `caitory-mysql-backup`에 2024-09-05 백업 데이터가 담겨있습니다.
