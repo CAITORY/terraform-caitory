@@ -77,6 +77,7 @@ resource "docker_image" "mysql" {
 resource "docker_container" "nginx_proxy_manager" {
   image = docker_image.nginx_proxy_manager.image_id
   name  = "nginx_proxy_manager"
+  network_mode = "bridge"
 
   ports {
     internal = 80
@@ -113,6 +114,7 @@ resource "docker_container" "nginx_proxy_manager" {
 resource "docker_container" "mysql" {
   image = docker_image.mysql.image_id
   name  = "mysql"
+  network_mode = "bridge"
 
   ports {
     internal = 3306
