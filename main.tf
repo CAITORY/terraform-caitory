@@ -122,22 +122,3 @@ module "docker_infra" {
   mysql_root_password             = var.mysql_root_password
   mysql_tz                        = var.mysql_tz
 }
-
-################################################################################
-# Output
-################################################################################
-
-output "server_public_ip" {
-  description = "server_public_ip"
-  value       = module.aws_infra.server_public_ip
-}
-
-output "server_pem_file_path" {
-  description = "server_pem_file_path"
-  value       = module.aws_infra.server_pem_file_path
-}
-
-output "server_aws_instance_id" {
-  description = "server_aws_instance_id"
-  value       = module.aws_infra.server_aws_instance_id
-}

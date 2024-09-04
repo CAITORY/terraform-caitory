@@ -61,9 +61,6 @@ jobs:
       - name: docker infra Terraform Apply
         run: terraform apply -target=module.docker_infra -auto-approve
 
-      - name: Terraform Outputs
-        run: terraform output
-
       ################################################################################
       # Destroy
       ################################################################################
@@ -83,7 +80,3 @@ jobs:
       - name: destroy aws infra Terraform Destroy
         if: "contains(github.event.head_commit.message, '[destroy]')"
         run: terraform destroy -target=module.aws_infra -auto-approve
-
-      - name: Terraform Outputs After Destroy
-        if: "contains(github.event.head_commit.message, '[destroy]')"
-        run: terraform output
