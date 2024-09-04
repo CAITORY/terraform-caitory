@@ -1,0 +1,89 @@
+name: Terraform
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.tf'
+      - '**/modules/**/*'
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_APP_TERRAFORM_IO }}
+      TF_VAR_prefix: ${{ vars.TF_VAR_PREFIX }}
+      TF_VAR_aws_access_key: ${{ secrets.TF_VAR_AWS_ACCESS_KEY }}
+      TF_VAR_aws_secret_key: ${{ secrets.TF_VAR_AWS_SECRET_KEY }}
+      TF_VAR_aws_region: ${{ vars.TF_VAR_AWS_REGION }}
+      TF_VAR_server_docker_volume_id: ${{ vars.TF_VAR_SERVER_DOCKER_VOLUME_ID }}
+      TF_VAR_server_docker_volume_path: ${{ vars.TF_VAR_SERVER_DOCKER_VOLUME_PATH }}
+      TF_VAR_server_docker_volume_mount_path: ${{ vars.TF_VAR_SERVER_DOCKER_VOLUME_MOUNT_PATH }}
+      TF_VAR_server_instance_type: ${{ vars.TF_VAR_SERVER_INSTANCE_TYPE }}
+      TF_VAR_server_ami: ${{ vars.TF_VAR_SERVER_AMI }}
+      TF_VAR_mysql_root_password: ${{ secrets.TF_VAR_MYSQL_ROOT_PASSWORD }}
+      TF_VAR_mysql_tz: ${{ vars.TF_VAR_MYSQL_TZ }}
+      TF_VAR_terraform_env: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init -backend-config="organization=${{ vars.TF_VAR_TERRAFORM_ORGANIZATION }}"
+
+      - name: Select or Create Terraform Workspace
+        run: terraform workspace select ${{ github.ref_name }}
+
+      - name: aws infra Terraform Plan
+        run: terraform plan -target=module.aws_infra
+
+      - name: aws infra Terraform Apply
+        run: terraform apply -target=module.aws_infra -auto-approve
+
+      - name: Check Pem File
+        run: ls ./modules/aws_infra -al
+
+      - name: aws waiting Terraform Plan
+        run: terraform plan -target=module.aws_waiting
+
+      - name: aws waiting Terraform Apply
+        run: terraform apply -target=module.aws_waiting -auto-approve
+
+      - name: docker infra Terraform Plan
+        run: terraform plan -target=module.docker_infra
+
+      - name: docker infra Terraform Apply
+        run: terraform apply -target=module.docker_infra -auto-approve
+
+      - name: Terraform Outputs
+        run: terraform output
+
+      ################################################################################
+      # Destroy
+      ################################################################################
+
+      - name: destroy docker infra Terraform Plan
+        if: "contains(github.event.head_commit.message, '[destroy]')"
+        run: terraform plan -destroy -target=module.docker_infra
+
+      - name: destroy docker infra Terraform Destroy
+        if: "contains(github.event.head_commit.message, '[destroy]')"
+        run: terraform destroy -target=module.docker_infra -auto-approve
+
+      - name: destroy aws infra Terraform Plan
+        if: "contains(github.event.head_commit.message, '[destroy]')"
+        run: terraform plan -destroy -target=module.aws_infra
+
+      - name: destroy aws infra Terraform Destroy
+        if: "contains(github.event.head_commit.message, '[destroy]')"
+        run: terraform destroy -target=module.aws_infra -auto-approve
+
+      - name: Terraform Outputs After Destroy
+        if: "contains(github.event.head_commit.message, '[destroy]')"
+        run: terraform output
